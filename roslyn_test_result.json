@@ -1,0 +1,174 @@
+{
+  "filePath": "D:\\self-code\\RepoAgent\\tools\\roslyn_analyzer\\test.cs",
+  "analyzedAt": "2025-12-16T09:14:05.6739116Z",
+  "language": "C#",
+  "languageVersion": "C# 10.0\u002B",
+  "namespaces": [
+    "MyTestNamespace"
+  ],
+  "imports": [
+    {
+      "name": "System",
+      "isStatic": false
+    },
+    {
+      "name": "System.Collections.Generic",
+      "isStatic": false
+    },
+    {
+      "name": "System.Threading.Tasks",
+      "isStatic": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestService",
+      "kind": "ClassDeclaration",
+      "modifiers": [
+        "public"
+      ],
+      "interfaces": [],
+      "genericParameters": [],
+      "documentation": " \u003Csummary\u003E\r\n    /// \u8FD9\u662F\u4E00\u4E2A\u6D4B\u8BD5\u7C7B\r\n    /// \u003C/summary\u003E\r\n",
+      "properties": [
+        {
+          "name": "Count",
+          "type": "int",
+          "modifiers": [
+            "public"
+          ],
+          "hasGet": false,
+          "hasSet": false,
+          "isExpressionBodied": true
+        }
+      ],
+      "fields": [
+        {
+          "name": "_items",
+          "type": "List\u003Cstring\u003E",
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "hasInitializer": true
+        }
+      ],
+      "methods": [
+        {
+          "name": "GetItemAsync",
+          "returnType": "Task\u003Cstring\u003E",
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "type": "int",
+              "hasDefaultValue": false
+            }
+          ],
+          "isAsync": true,
+          "isExpressionBodied": false,
+          "isGeneric": false
+        },
+        {
+          "name": "AddItem",
+          "returnType": "void",
+          "modifiers": [
+            "public"
+          ],
+          "parameters": [
+            {
+              "name": "item",
+              "type": "string",
+              "hasDefaultValue": false
+            }
+          ],
+          "isAsync": false,
+          "isExpressionBodied": false,
+          "isGeneric": false
+        },
+        {
+          "name": "GetAllItems",
+          "returnType": "IEnumerable\u003Cstring\u003E",
+          "modifiers": [
+            "public"
+          ],
+          "parameters": [],
+          "isAsync": false,
+          "isExpressionBodied": false,
+          "isGeneric": false
+        }
+      ],
+      "events": [],
+      "indexers": []
+    },
+    {
+      "name": "ITestService",
+      "kind": "InterfaceDeclaration",
+      "modifiers": [
+        "public"
+      ],
+      "interfaces": [],
+      "genericParameters": [],
+      "properties": [],
+      "fields": [],
+      "methods": [
+        {
+          "name": "GetItemAsync",
+          "returnType": "Task\u003Cstring\u003E",
+          "modifiers": [],
+          "parameters": [
+            {
+              "name": "id",
+              "type": "int",
+              "hasDefaultValue": false
+            }
+          ],
+          "isAsync": false,
+          "isExpressionBodied": false,
+          "isGeneric": false
+        },
+        {
+          "name": "AddItem",
+          "returnType": "void",
+          "modifiers": [],
+          "parameters": [
+            {
+              "name": "item",
+              "type": "string",
+              "hasDefaultValue": false
+            }
+          ],
+          "isAsync": false,
+          "isExpressionBodied": false,
+          "isGeneric": false
+        }
+      ],
+      "events": [],
+      "indexers": []
+    }
+  ],
+  "delegates": [],
+  "enums": [],
+  "dotNetFeatures": {
+    "attributes": [
+      "Serializable"
+    ],
+    "linqQueries": [],
+    "linqMethodCalls": [
+      "_items.FirstOrDefault(item =\u003E item == $\u0022Item_{id}\u0022)",
+      "_items.Where(item =\u003E !string.IsNullOrEmpty(item))"
+    ],
+    "asyncMethods": [
+      "GetItemAsync"
+    ],
+    "lambdaExpressions": [
+      "item =\u003E item == $\u0022Item_{id}\u0022",
+      "item =\u003E !string.IsNullOrEmpty(item)"
+    ],
+    "genericConstraints": [],
+    "localFunctions": []
+  }
+}
