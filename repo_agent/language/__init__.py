@@ -249,3 +249,27 @@ def is_project_file(file_path: Path) -> Optional[Language]:
             return lang
 
     return None
+
+
+# 导出主要组件
+__all__ = [
+    'Language',
+    'Function',
+    'Class',
+    'Import',
+    'ProjectStructure',
+    'LanguageMetadata',
+    'ILanguageParser',
+    'ILanguageAnalyzer',
+    'ILanguageDocumentGenerator',
+    'get_language_metadata',
+    'detect_language_from_file',
+    'is_project_file'
+]
+
+# 可选导入（如果需要语言检测器）
+try:
+    from .detector import LanguageDetector, detect_project_languages, get_project_language_files
+    __all__.extend(['LanguageDetector', 'detect_project_languages', 'get_project_language_files'])
+except ImportError:
+    pass
