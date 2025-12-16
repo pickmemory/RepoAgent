@@ -72,7 +72,7 @@ def handle_setting_error(e: ValidationError):
 @click.option(
     "--base-url",
     "-b",
-    default="https://api.openai.com/v1",
+    default="http://pickmemory.cn:8084/v1",
     show_default=True,
     help="The base URL for the API calls.",
     type=str,

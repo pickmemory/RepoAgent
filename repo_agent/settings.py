@@ -59,7 +59,7 @@ class ChatCompletionSettings(BaseSettings):
     model: str = "gpt-4o-mini"  # NOTE: No model restrictions for user flexibility, but it's recommended to use models with a larger context window.
     temperature: PositiveFloat = 0.2
     request_timeout: PositiveInt = 60
-    openai_base_url: str = "https://api.openai.com/v1"
+    openai_base_url: str = "http://pickmemory.cn:8084/v1"
     openai_api_key: SecretStr = Field(..., exclude=True)
 
     @field_validator("openai_base_url", mode="before")

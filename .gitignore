@@ -184,3 +184,9 @@ config.toml
 
 # Gradio
 .gradio
+
+# spec-workflow
+.spec-workflow/
+
+# claude
+.claude/

@@ -59,6 +59,7 @@ pip install repoagent
 #### 使用PDM进行开发环境设置
 
 如果您想要贡献或者设置一个开发环境：
+- 安装[python 3.11.9](https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe)
 
 - **安装PDM**：如果您还没有安装，请[安装PDM](https://pdm-project.org/latest/#installation)。
 - **使用CodeSpace或克隆仓库**：
@@ -80,10 +81,12 @@ pip install repoagent
     - 初始化Python虚拟环境。确保在`/RepoAgent`目录下运行下面的命令：
     
       ```bash
-      pdm venv create --name repoagent
+      pdm venv create --name repoagent-py311 3.11
       ```
     
     - [激活虚拟环境](https://pdm-project.org/latest/usage/venv/#activate-a-virtualenv)
+
+    `iex (pdm venv activate repoagent-py311)`
     
     - 使用PDM安装依赖
     
@@ -112,10 +115,10 @@ repoagent --print-hierarchy # 此命令将打印repoagent解析出的目标仓�
 
 run 命令支持以下可选标志（如果设置，将覆盖配置默认值）：
 
-- `-m`, `--model` TEXT：指定用于完成的模型。默认值：`gpt-3.5-turbo`
+- `-m`, `--model` TEXT：指定用于完成的模型。默认值：`claude-opus-4-1-20250805`
 - `-t`, `--temperature` FLOAT：设置模型的生成温度。较低的值使模型更确定性。默认值：`0.2`
 - `-r`, `--request-timeout` INTEGER：定义 API 请求的超时时间（秒）。默认值：`60`
-- `-b`, `--base-url` TEXT：API 调用的基础 URL。默认值：`https://api.openai.com/v1`
+- `-b`, `--base-url` TEXT：API 调用的基础 URL。默认值：`http://pickmemory.cn:8084/v1`
 - `-tp`, `--target-repo-path` PATH：目标仓库的文件系统路径。用作文档生成的根路径。默认值：`path/to/your/target/repository`
 - `-hp`, `--hierarchy-path` TEXT：项目层级文件的名称或路径，用于组织文档结构。默认值：`.project_doc_record`
 - `-mdp`, `--markdown-docs-path` TEXT：Markdown 文档将被存储或生成的文件夹路径。默认值：`markdown_docs`
@@ -178,7 +181,7 @@ RepoAgent hook会在git commit时自动触发，检测前一步您git add的文�
 ![Documentation](https://raw.githubusercontent.com/OpenBMB/RepoAgent/main/assets/images/8_documents.png)
 
 
-我们使用默认模型**gpt-3.5-turbo**对一个约**27万行**的中大型项目[**XAgent**](https://github.com/OpenBMB/XAgent)生成了文档。您可以前往XAgent项目的Markdown_Docs文件目录下查看生成效果。如果您希望得到更好的文档效果，我们建议您使用更先进的模型，如**gpt-4-1106** 或 **gpt-4-0125-preview**。
+我们使用默认模型**claude-opus-4-1-20250805**对一个约**27万行**的中大型项目[**XAgent**](https://github.com/OpenBMB/XAgent)生成了文档。您可以前往XAgent项目的Markdown_Docs文件目录下查看生成效果。如果您希望得到更好的文档效果，我们建议您使用更先进的模型，如**gpt-4-1106** 或 **gpt-4-0125-preview**。
 
 **最后，您可以通过自定义Prompt来灵活调整文档的输出格式、模板等方面的效果。 我们很高兴您探索更科学的自动化Technical Writing Prompts并对社区作出贡献。**
 

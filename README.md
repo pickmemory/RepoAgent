@@ -122,10 +122,10 @@ repoagent run --print-hierarchy # Print how repo-agent parse the target repo
 
 The run command supports the following optional flags (if set, will override config defaults):
 
-- `-m`, `--model` TEXT: Specifies the model to use for completion. Default: `gpt-3.5-turbo`
+- `-m`, `--model` TEXT: Specifies the model to use for completion. Default: `claude-opus-4-1-20250805`
 - `-t`, `--temperature` FLOAT: Sets the generation temperature for the model. Lower values make the model more deterministic. Default: `0.2`
 - `-r`, `--request-timeout` INTEGER: Defines the timeout in seconds for the API request. Default: `60`
-- `-b`, `--base-url` TEXT: The base URL for the API calls. Default: `https://api.openai.com/v1`
+- `-b`, `--base-url` TEXT: The base URL for the API calls. Default: `http://pickmemory.cn:8084/v1`
 - `-tp`, `--target-repo-path` PATH: The file system path to the target repository. Used as the root for documentation generation. Default: `path/to/your/target/repository`
 - `-hp`, `--hierarchy-path` TEXT: The name or path for the project hierarchy file, used to organize documentation structure. Default: `.project_doc_record`
 - `-mdp`, `--markdown-docs-path` TEXT: The folder path where Markdown documentation will be stored or generated. Default: `markdown_docs`
@@ -192,7 +192,7 @@ The generated document will be stored in the specified folder in the root direct
 ![Documentation](https://raw.githubusercontent.com/OpenBMB/RepoAgent/main/assets/images/Doc_example.png)
 ![Documentation](https://raw.githubusercontent.com/OpenBMB/RepoAgent/main/assets/images/8_documents.png)
 
-We utilized the default model **gpt-3.5-turbo** to generate documentation for the [**XAgent**](https://github.com/OpenBMB/XAgent) project, which comprises approximately **270,000 lines** of code. You can view the results of this generation in the Markdown_Docs directory of the XAgent project on GitHub. For enhanced documentation quality, we suggest considering more advanced models like **gpt-4-1106** or **gpt-4-0125-preview**.
+We utilized the default model **claude-opus-4-1-20250805** to generate documentation for the [**XAgent**](https://github.com/OpenBMB/XAgent) project, which comprises approximately **270,000 lines** of code. You can view the results of this generation in the Markdown_Docs directory of the XAgent project on GitHub. For enhanced documentation quality, we suggest considering more advanced models like **gpt-4-1106** or **gpt-4-0125-preview**.
 
 **In the end, you can flexibly adjust the output format, template, and other aspects of the document by customizing the prompt. We are excited about your exploration of a more scientific approach to Automated Technical Writing and your contributions to the community.** 
 

@@ -114,7 +114,7 @@ Additionally, the `get_token_limit` method in ChatCompletionSettings leverages `
 **Note**: 使用此代码时，请确保model_fields属性已正确定义并包含所需的字段信息，以避免运行时错误。
 
 **Output Example**: 假设model_fields包含以下字段：
-- name: "gpt-3.5-turbo", alias: "gpt-3.5"
+- name: "claude-opus-4-1-20250805", alias: "gpt-3.5"
 - name: "gpt-4", alias: None
 
 那么get_valid_models的返回值将是：
@@ -139,7 +139,7 @@ Additionally, the `get_token_limit` method in ChatCompletionSettings leverages `
 · model: str - The model to be used for chat completion, defaulting to "gpt-4o-mini".  
 · temperature: PositiveFloat - A float value that influences the randomness of the model's output, defaulting to 0.2.  
 · request_timeout: PositiveFloat - The timeout duration for requests, defaulting to 5 seconds.  
-· openai_base_url: str - The base URL for the OpenAI API, defaulting to "https://api.openai.com/v1".  
+· openai_base_url: str - The base URL for the OpenAI API, defaulting to "http://pickmemory.cn:8084/v1".  
 · openai_api_key: SecretStr - The API key required for authentication with the OpenAI service, marked to be excluded from certain outputs.
 
 **Code Description**: The ChatCompletionSettings class inherits from BaseSettings and is designed to encapsulate the configuration settings necessary for interacting with OpenAI's chat completion models. It includes attributes for specifying the model type, temperature, request timeout, base URL, and API key. The class employs field validators to ensure that the provided values for the model and base URL conform to expected formats and constraints.
@@ -169,7 +169,7 @@ In the context of the project, the ChatCompletionSettings class is instantiated 
 
 **Note**: 使用此代码时，请确保传入的 openai_base_url 是有效的 HttpUrl 类型，以避免类型错误或异常。
 
-**Output Example**: 假设传入的 openai_base_url 为 "https://api.openai.com/v1/", 则该函数的返回值将是 "https://api.openai.com/v1/"。
+**Output Example**: 假设传入的 openai_base_url 为 "http://pickmemory.cn:8084/v1/", 则该函数的返回值将是 "http://pickmemory.cn:8084/v1/"。
 ***
 ### FunctionDef validate_model(cls, value)
 **validate_model**: The function of validate_model is to ensure that a given model name is valid by checking it against a list of predefined valid models.
@@ -285,9 +285,9 @@ Setting(
     ),
     chat_completion=ChatCompletionSettings(
         openai_api_key='your_api_key',
-        openai_base_url='https://api.openai.com',
+        openai_base_url='http://pickmemory.cn:8084',
         request_timeout=30,
-        model='gpt-3.5-turbo',
+        model='claude-opus-4-1-20250805',
         temperature=0.7
     )
 )
