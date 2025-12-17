@@ -1,0 +1,403 @@
+# dotnet-common 项目结构
+
+dotnet-common
+  🎯 .NET: 10 projects (10 C#)
+  📋 Solutions: 1
+  demo/
+    DaprComponents/
+    DemoLogic/
+      Adapter/
+        DaprAppEventPublisher.cs 🔷
+        GroupsRepository.cs 🔷
+        MenuRepository.cs 🔷
+        UsersRepository.cs 🔷
+      Application/
+        DTOs/
+          DtmTransResponse.cs 🔷
+          GroupCreateInput.cs 🔷
+          GroupCreateOutput.cs 🔷
+          GroupListOutput.cs 🔷
+          GroupsToUserAssignInput.cs 🔷
+          UserCreateInput.cs 🔷
+          UserCreateOutput.cs 🔷
+          UserListOutput.cs 🔷
+        PortInterfaces/
+          IAppEventPublisher.cs 🔷
+        AppEventOnUserCreatedEventHandler.cs 🔷
+        AppEventOnUserDeletedEventHandler.cs 🔷
+        CommandAppServiceFactory.cs 🔷
+        GroupsCommandAppService.cs 🔷
+        GroupsOnUserDeletedEventHandler.cs 🔷
+        GroupsQueryAppService.cs 🔷
+        UsersCommandAppService.cs 🔷
+        UsersQueryAppService.cs 🔷
+      Data/
+        DemoDbContext.cs 🔷
+        GroupPO.cs 🔷
+        MenuFolderPO.cs 🔷
+        MenuFunctionPO.cs 🔷
+        MenuIconPO.cs 🔷
+        MenuPagePO.cs 🔷
+        MenuUriPO.cs 🔷
+        UserPO.cs 🔷
+      Domain/
+        Groups/
+          Group.cs 🔷
+          GroupsCreatingService.cs 🔷
+          GroupsUpdatingService.cs 🔷
+        Menus/
+          MenuFolder.cs 🔷
+          MenuFunction.cs 🔷
+          MenuIcon.cs 🔷
+          MenuPage.cs 🔷
+          MenuUri.cs 🔷
+          MenusCreatingService.cs 🔷
+        PortInterfaces/
+          IGroupsRepository.cs 🔷
+          IUsersRepository.cs 🔷
+        Users/
+          DuplicatedUserException.cs 🔷
+          User.cs 🔷
+          UserEvents.cs 🔷
+          UsersCreatingService.cs 🔷
+          UsersDeletingService.cs 🔷
+          UsersGroupAssigningService.cs 🔷
+          UsersRetrievingService.cs 🔷
+          UsersUpdatingService.cs 🔷
+      AssemblyInfo.cs 🔷
+    DemoUnitTest/
+      AssemblyInfo.cs 🔷
+      MenuRepositoryTest.cs 🔷
+      UserDomainTest.cs 🔷
+      Usings.cs 🔷
+    DemoWeb/
+      Controllers/
+        GroupsController.cs 🔷
+        LoggingController.cs 🔷
+        StartController.cs 🔷
+        UsersController.cs 🔷
+        ValuesController.cs 🔷
+      Properties/
+      EdmModelFactory.cs 🔷
+      FakeAppServiceContextAccessor.cs 🔷
+      Program.cs 🔷
+      PurchanseApiParamLogFilter.cs 🔷
+  markdown_docs/
+  src/
+    Inno.CorePlatform.Common/
+      AspNetCore/
+        UnhandleExcepitonMiddleware.cs 🔷
+      Azure/
+        CloudRoleNameTelemetryInitializer.cs 🔷
+        IgnoreHealthCheckTelemetryProcessor.cs 🔷
+      Clients/
+        ApiServices/
+          Bds/
+            Inputs/
+              CheckBarCodeCreateInput.cs 🔷
+              CheckBarcodeCreateWithParseInput.cs 🔷
+              CompanyMetaInfoInput.cs 🔷
+              CustomerDeptMetaInput.cs 🔷
+              CustomerDeptMetaPagedInput.cs 🔷
+              CustomerMetaInput.cs 🔷
+              CustomerMetaPagedInput.cs 🔷
+              DictionaryInput.cs 🔷
+              GetAgentsOrCustomersByCompanyIdsInput.cs 🔷
+              HospitalAddressInput.cs 🔷
+              HospitalInfoInput.cs 🔷
+              NonPassStoreHouseQueryPageInput.cs 🔷
+              ProductInvoiceInput.cs 🔷
+              QueryCompaniesByAgentIdsInput.cs 🔷
+            Outputs/
+              CheckBarcodeCreateWithParseOutput.cs 🔷
+              CompanyMetaInfoOutput.cs 🔷
+              CustomerDeptMetaOutput.cs 🔷
+              CustomerDeptMetaPagedOutput.cs 🔷
+              CustomerMetaOutput.cs 🔷
+              CustomerMetaPagedOutput.cs 🔷
+              DictionaryOutput.cs 🔷
+              GetAgentsOrCustomersByCompanyIdsOutput.cs 🔷
+              HospitalAddressOutput.cs 🔷
+              HospitalInfoOutput.cs 🔷
+              NonPassStoreHouseQueryPageOutput.cs 🔷
+              ProductInvoiceOutput.cs 🔷
+              QueryCompaniesByAgentIdsOutput.cs 🔷
+            BDSApiClient.cs 🔷
+          Internals/
+            Inputs/
+              AddSpdThirdDetailRelaInfoInput.cs 🔷
+              CancelThirdStoreInInput.cs 🔷
+              CancelThirdStoreOutInput.cs 🔷
+              QuerySpdProductInput.cs 🔷
+              ThirdInterfaceConfigInput.cs 🔷
+            Outputs/
+              QuerySpdProductOutput.cs 🔷
+              ThirdCancelStoreInOutput.cs 🔷
+              ThirdCancelStoreOutOutput.cs 🔷
+              ThirdInterfaceConfigOutput.cs 🔷
+            ICApiClient.cs 🔷
+            InternalApiClient.cs 🔷
+          Permissions/
+            Inputs/
+              GetStrategyInput.cs 🔷
+            Outputs/
+              StrategyOutput.cs 🔷
+            PermissionApiClient.cs 🔷
+          ProjectManage/
+            Inputs/
+              CheckAdjustBusinessDeptStatusInput.cs 🔷
+              GetRulesInput.cs 🔷
+              PMCheckAdvanceBusinessInput.cs 🔷
+              PMGetContractDelayInfoInput.cs 🔷
+              PMSearchRunProjectListInput.cs 🔷
+              ProjectMateInfoInput.cs 🔷
+              UpdateAdjustProgressStatusInput.cs 🔷
+            Outputs/
+              CheckAdjustBusinessDeptStatusOutput.cs 🔷
+              CheckIsAllowCreateByContractSignBackOutput.cs 🔷
+              GetRulesItemOutput.cs 🔷
+              PMCheckAdvanceBusinessOutput.cs 🔷
+              PMGetContractDelayInfoOutput.cs 🔷
+              PMSearchRunProjectListOutput.cs 🔷
+              ProjectMateInfoOutput.cs 🔷
+            ProjectManageClient.cs 🔷
+          Purchase/
+            Inputs/
+              PurchaseSubSystemQueryInput.cs 🔷
+            Outputs/
+              PurchaseSubSystemQueryOutput.cs 🔷
+            PurchaseApiClient.cs 🔷
+          Sell/
+            Inputs/
+              CustomerProductPriceInput.cs 🔷
+              SaleOutForceCancelInput.cs 🔷
+              SaleSystemItemInput.cs 🔷
+              SaleSystemProvinceInput.cs 🔷
+            Outputs/
+              CustomerProductPriceOutput.cs 🔷
+              SaleSystemItemOutput.cs 🔷
+              SaleSystemProvinceOutput.cs 🔷
+            SellApiClient.cs 🔷
+        Interfaces/
+          IBDSApiClient.cs 🔷
+          ICoordinateClient.cs 🔷
+          IICApiClient.cs 🔷
+          IInternalApiClient.cs 🔷
+          IPermissionApiClient.cs 🔷
+          IProjectClient.cs 🔷
+          IPurchaseApiClient.cs 🔷
+          ISellApiClient.cs 🔷
+        ApiRoutes.cs 🔷
+        AppIds.cs 🔷
+        BaseClient.cs 🔷
+        BaseDTO.cs 🔷
+        BaseWebApiClient.cs 🔷
+        CoordinateClient.cs 🔷
+        ProductStateClient.cs 🔷
+      CompetenceCenter/
+        BDS/
+          BdsService.cs 🔷
+          IBdsService.cs 🔷
+        Consts/
+          DataDictionaryConstant.cs 🔷
+          RowStrategyConstant.cs 🔷
+        Enums/
+          CreateOrderPermissionEnums.cs 🔷
+          CustomerAddressTypeEnum.cs 🔷
+          CustomerDeptStatusEnums.cs 🔷
+          CustomerStatusEnums.cs 🔷
+          InvoiceEnums.cs 🔷
+          RelateCodeTypeEnums.cs 🔷
+          ThirdTypeEnums.cs 🔷
+        DataStrategyPermissionService.cs 🔷
+        IDataStrategyPermissionService.cs 🔷
+      DDD/
+        Query/
+          Inputs/
+            BaseQueryInput.cs 🔷
+            CommonQueryInput.cs 🔷
+          Interfaces/
+            IAnalysisStrategy.cs 🔷
+            IBaseQueryInterface.cs 🔷
+            ICommonPlusQueryInterface.cs 🔷
+            ICommonQueryInterface.cs 🔷
+          Outputs/
+            CommonQueryOutput.cs 🔷
+          BaseAnalysisStrategy.cs 🔷
+          BaseQueryService.cs 🔷
+          CommonPlusQueryService.cs 🔷
+          CommonQueryService.cs 🔷
+          PageInput.cs 🔷
+          PageOutput.cs 🔷
+          QueryEnums.cs 🔷
+          SortInput.cs 🔷
+        AppServiceContext.cs 🔷
+        AppServiceException.cs 🔷
+        ApplicationService.cs 🔷
+        BusinessRuleValidationException.cs 🔷
+        DefaultDomainEventDispatcher.cs 🔷
+        DomainEvent.cs 🔷
+        DomainEventNotification.cs 🔷
+        DomainException.cs 🔷
+        DomainService.cs 🔷
+        Entity.cs 🔷
+        EntityWithBasicInfo.cs 🔷
+        EntityWithCodeAndBillDate.cs 🔷
+        IAggregateRoot.cs 🔷
+        IBusinessRule.cs 🔷
+        IParamObject.cs 🔷
+        IRepository.cs 🔷
+        IUnitOfWork.cs 🔷
+        IUnitOfWorkFactory.cs 🔷
+        IgnoreMemberAttribute.cs 🔷
+        TypedIdValueBase.cs 🔷
+        ValueObject.cs 🔷
+      DTO/
+        BaseDtoWithBasicInfo.cs 🔷
+        CommonEnums.cs 🔷
+        ExportTaskInputDto.cs 🔷
+        ExportTaskResDto.cs 🔷
+        ProductStateActorInput.cs 🔷
+        ProductStateEnum.cs 🔷
+        ProductStateInput.cs 🔷
+        ProductStateUpdateInput.cs 🔷
+        UserDTO.cs 🔷
+      DaprActors/
+        IProductStateActorActor.cs 🔷
+      Data/
+        BasePoWithBasicInfo.cs 🔷
+      ElementWrapper/
+        EL_SelectOption.cs 🔷
+        EL_TransferOption.cs 🔷
+      EntityFramework/
+        EfBaseRepository.cs 🔷
+        EfRepositoryHelper.cs 🔷
+      Filters/
+        BaseApiParamLogEntity.cs 🔷
+        BaseApiParamLogFilter.cs 🔷
+      Http/
+        BasePagedData.cs 🔷
+        BasePagedRequestData.cs 🔷
+        BaseRequestData.cs 🔷
+        BaseResponseData.cs 🔷
+        CodeStatusEnum.cs 🔷
+        DefaultAppServiceContextAccessor.cs 🔷
+        ResponseData.cs 🔷
+      Logging/
+        ClaimEnricher.cs 🔷
+        ClsFormatter.cs 🔷
+        ClsJsonConsoleFormatter.cs 🔷
+        LogInfo.cs 🔷
+        LoggerEnrichmentConfigurationExtensions.cs 🔷
+        LoggingHelper.cs 🔷
+      MongoDB/
+        InnoDateTimeOffsetSerializer.cs 🔷
+        MongoBaseRepository.cs 🔷
+        MongoHelper.cs 🔷
+      Utility/
+        DateTime/
+          Extensions.cs 🔷
+        EPPlus/
+          Extensions.cs 🔷
+        Expressions/
+          ExpressionTargetTypeMutator.cs 🔷
+          Extensions.cs 🔷
+        Permission/
+          Extensions.cs 🔷
+        Strings/
+          Extensions.cs 🔷
+        CoordinateSignSupports.cs 🔷
+        EnumHelper.cs 🔷
+        ExcelHelper.cs 🔷
+        Helper.cs 🔷
+        ObjectExtensions.cs 🔷
+        StopwatchHelper.cs 🔷
+      bin/
+        Debug/
+          net8.0/
+      obj/
+        Debug/
+          net8.0/
+            ref/
+            refint/
+            Inno.CorePlatform.Common.AssemblyInfo.cs 🔷
+      AssemblyInfo.cs 🔷
+    Inno.CorePlatform.ServiceClient/
+      Dapr/
+        ConfigExtensions.cs 🔷
+        LoggingSwitcher.cs 🔷
+      K8s/
+        MetricExtensions.cs 🔷
+      OperationalLog/
+        OperationalLogInput.cs 🔷
+        OperationalLogMiddleware.cs 🔷
+      bin/
+        Debug/
+          net8.0/
+      obj/
+        Debug/
+          net8.0/
+            ref/
+            refint/
+            Inno.CorePlatform.ServiceClient.AssemblyInfo.cs 🔷
+      Consts.cs 🔷
+      Program.cs 🔷
+      UserDisplayNameTransfer.cs 🔷
+    Inno.CorePlatform.TestCommon/
+      AssemblyInfo.cs 🔷
+      DbContextTestHelper.cs 🔷
+      ListLogger.cs 🔷
+      LoggerTypes.cs 🔷
+      NullScope.cs 🔷
+      TestFactory.cs 🔷
+    Inno.CorePlatform.TestCommon.NUnit/
+      build/
+      AuthApiTest.cs 🔷
+      NonAuthApiTest.cs 🔷
+      PlaywrightExtensions.cs 🔷
+  test/
+    Inno.CorePlatform.Common.UnitTest/
+      AssemblyInfo.cs 🔷
+      BDSApiClientTest.cs 🔷
+      ClaimEnricherTest.cs 🔷
+      DataStrategyPermissionServiceTest.cs 🔷
+      DelegatingSink.cs 🔷
+      ICApiClientTest.cs 🔷
+      InternalApiClientTest.cs 🔷
+      ProjectManageClientTest.cs 🔷
+      SellApiClientTest.cs 🔷
+      Usings.cs 🔷
+      UtilityHelper.cs 🔷
+    Inno.CorePlatform.ServiceClientUnitTest/
+      Dapr/
+        ConfigExtensionsTests.cs 🔷
+      Data/
+      K8s/
+        MetricExtensionsTests.cs 🔷
+      AssemblyInfo.cs 🔷
+      UserDisplayNameTransferTest.cs 🔷
+      Usings.cs 🔷
+    TestWebApp/
+      Controllers/
+        ErrorTestController.cs 🔷
+        HomeController.cs 🔷
+      Models/
+        ErrorViewModel.cs 🔷
+      Views/
+        Home/
+        Shared/
+      wwwroot/
+        css/
+        js/
+        lib/
+          bootstrap/
+            dist/
+              css/
+              js/
+          jquery/
+            dist/
+          jquery-validation/
+            dist/
+          jquery-validation-unobtrusive/
+      DecodeBearerTokenMiddleware.cs 🔷
+      Program.cs 🔷

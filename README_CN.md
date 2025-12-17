@@ -111,6 +111,7 @@ $Env:OPENAI_API_KEY = "YOUR_API_KEY" # on Windows (PowerShell)
 ```sh
 repoagent run # 这条命令会生成文档或自动更新文档 (pre-commit-hook 会自动调用它)
 repoagent --print-hierarchy # 此命令将打印repoagent解析出的目标仓库
+pdm run repoagent run --target-repo-path D:\code\dotnet-common --max-thread-count 10 --language Chinese #本地运行可以使用类似的命令指定目标项目路径、最大线程数、文档语言
 ```
 
 run 命令支持以下可选标志（如果设置，将覆盖配置默认值）：

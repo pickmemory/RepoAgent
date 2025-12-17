@@ -6,6 +6,7 @@ import git
 from colorama import Fore, Style
 
 from repo_agent.file_handler import FileHandler
+from repo_agent.file_handler_factory import create_file_handler
 from repo_agent.settings import SettingsManager
 
 
@@ -278,7 +279,7 @@ if __name__ == "__main__":
             change_detector.get_file_diff(file_path, is_new_file)
         )
         # print("changed_lines:",changed_lines)
-        file_handler = FileHandler(repo_path=repo_path, file_path=file_path)
+        file_handler = create_file_handler(repo_path=repo_path, file_path=file_path)
         changes_in_pyfile = change_detector.identify_changes_in_structure(
             changed_lines,
             file_handler.get_functions_and_classes(file_handler.read_file()),

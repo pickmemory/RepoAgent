@@ -15,6 +15,7 @@ from repo_agent.change_detector import ChangeDetector
 from repo_agent.chat_engine import ChatEngine
 from repo_agent.doc_meta_info import DocItem, DocItemStatus, MetaInfo, need_to_generate
 from repo_agent.file_handler import FileHandler
+from repo_agent.file_handler_factory import create_file_handler, get_supported_file_extensions
 from repo_agent.log import logger
 from repo_agent.multi_task_dispatch import worker
 from repo_agent.project_manager import ProjectManager
@@ -54,9 +55,30 @@ class Runner:
         )
         self.runner_lock = threading.Lock()
 
+    def get_all_source_files(self, directory):
+        """
+        Get all supported source files in the given directory.
+
+        Args:
+            directory (str): The directory to search.
+
+        Returns:
+            list: A list of paths to all supported source files.
+        """
+        source_files = []
+        supported_extensions = get_supported_file_extensions()
+
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                if any(file.endswith(ext) for ext in supported_extensions):
+                    source_files.append(os.path.join(root, file))
+
+        return source_files
+
     def get_all_pys(self, directory):
         """
         Get all Python files in the given directory.
+        [保留以保持向后兼容性]
 
         Args:
             directory (str): The directory to search.
@@ -64,14 +86,7 @@ class Runner:
         Returns:
             list: A list of paths to all Python files.
         """
-        python_files = []
-
-        for root, dirs, files in os.walk(directory):
-            for file in files:
-                if file.endswith(".py"):
-                    python_files.append(os.path.join(root, file))
-
-        return python_files
+        return [f for f in self.get_all_source_files(directory) if f.endswith('.py')]
 
     def generate_doc_for_a_single_item(self, doc_item: DocItem):
         """为一个对象生成文档"""
@@ -87,7 +102,8 @@ class Runner:
                 response_message = self.chat_engine.generate_doc(
                     doc_item=doc_item,
                 )
-                doc_item.md_content.append(response_message)  # type: ignore
+                # response_message 是字符串，直接添加到 md_content 列表
+                doc_item.md_content.append(response_message)
                 doc_item.item_status = DocItemStatus.doc_up_to_date
                 self.meta_info.checkpoint(
                     target_dir_path=self.absolute_project_hierarchy_path
@@ -202,9 +218,18 @@ class Runner:
                 continue
 
             # 确定并创建文件路径
-            file_path = Path(
-                self.setting.project.markdown_docs_name
-            ) / file_item.get_file_name().replace(".py", ".md")
+            source_file = file_item.get_file_name()
+            # 将支持的源代码文件扩展名替换为 .md
+            supported_extensions = get_supported_file_extensions()
+            for ext in supported_extensions:
+                if source_file.endswith(ext):
+                    markdown_file = source_file[:-len(ext)] + ".md"
+                    break
+            else:
+                # 如果没有匹配的扩展名，默认添加 .md
+                markdown_file = source_file + ".md"
+
+            file_path = Path(self.setting.project.markdown_docs_name) / markdown_file
             abs_file_path = self.setting.project.target_repo / file_path
             logger.debug(f"Writing markdown to: {abs_file_path}")
 
@@ -421,7 +446,7 @@ class Runner:
             None
         """
 
-        file_handler = FileHandler(
+        file_handler = create_file_handler(
             repo_path=repo_path, file_path=file_path
         )  # 变更文件的操作器
         # 获取整个py文件的代码
@@ -536,8 +561,8 @@ class Runner:
                         "obj_referencer_list": self.project_manager.find_all_referencer(
                             variable_name=current_object["name"],
                             file_path=file_handler.file_path,
-                            line_number=current_object["code_start_line"],
-                            column_number=current_object["name_column"],
+                            line_number=current_object.get("code_start_line", 0),
+                            column_number=current_object.get("name_column", 0),
                         ),
                     }
                     referencer_list.append(

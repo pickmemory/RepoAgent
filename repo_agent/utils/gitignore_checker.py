@@ -1,6 +1,11 @@
 import fnmatch
 import os
 
+# Hardcode supported extensions to avoid circular imports
+def get_supported_file_extensions():
+    """Get all supported source code file extensions"""
+    return ['.py', '.pyi', '.cs', '.csx', '.fs', '.fsi', '.fsx', '.vb', '.vbx']
+
 
 class GitignoreChecker:
     def __init__(self, directory: str, gitignore_path: str):
@@ -99,13 +104,15 @@ class GitignoreChecker:
     def check_files_and_folders(self) -> list:
         """
         Check all files and folders in the given directory against the split gitignore patterns.
-        Return a list of files that are not ignored and have the '.py' extension.
+        Return a list of files that are not ignored and have supported source code extensions.
         The returned file paths are relative to the self.directory.
 
         Returns:
-            list: A list of paths to files that are not ignored and have the '.py' extension.
+            list: A list of paths to files that are not ignored and have supported source code extensions.
         """
         not_ignored_files = []
+        supported_extensions = get_supported_file_extensions()
+
         for root, dirs, files in os.walk(self.directory):
             dirs[:] = [
                 d
@@ -116,10 +123,12 @@ class GitignoreChecker:
             for file in files:
                 file_path = os.path.join(root, file)
                 relative_path = os.path.relpath(file_path, self.directory)
-                if not self._is_ignored(
-                    file, self.file_patterns
-                ) and file_path.endswith(".py"):
-                    not_ignored_files.append(relative_path)
+
+                # Check if file is not ignored and has a supported extension
+                if not self._is_ignored(file, self.file_patterns):
+                    # Check if file has a supported extension
+                    if any(file_path.endswith(ext) for ext in supported_extensions):
+                        not_ignored_files.append(relative_path)
 
         return not_ignored_files
 

@@ -72,6 +72,9 @@ class Function:
     is_async: bool = False
     access_level: str = "public"
     language_specific: Optional[Dict[str, Any]] = None
+    # 添加位置信息
+    start_line: int = 1
+    end_line: int = 50
 
     def __post_init__(self):
         if self.language_specific is None:
@@ -89,6 +92,9 @@ class Class:
     is_abstract: bool = False
     access_level: str = "public"
     language_specific: Optional[Dict[str, Any]] = None
+    # 添加位置信息
+    start_line: int = 1
+    end_line: int = 100
 
     def __post_init__(self):
         if self.language_specific is None:

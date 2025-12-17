@@ -31,10 +31,11 @@ class ChatEngine:
         code_info = doc_item.content
         referenced = len(doc_item.who_reference_me) > 0
 
-        code_type = code_info["type"]
-        code_name = code_info["name"]
-        code_content = code_info["code_content"]
-        have_return = code_info["have_return"]
+        code_type = code_info.get("type", "unknown")
+        code_name = code_info.get("name", doc_item.obj_name)
+        # 处理可能缺失的 code_content 字段
+        code_content = code_info.get("code_content", "")
+        have_return = code_info.get("have_return", False)
         file_path = doc_item.get_full_name()
 
         def get_referenced_prompt(doc_item: DocItem) -> str:
@@ -45,7 +46,7 @@ class ChatEngine:
             ]
             for reference_item in doc_item.reference_who:
                 instance_prompt = (
-                    f"""obj: {reference_item.get_full_name()}\nDocument: \n{reference_item.md_content[-1] if len(reference_item.md_content) > 0 else 'None'}\nRaw code:```\n{reference_item.content['code_content'] if 'code_content' in reference_item.content.keys() else ''}\n```"""
+                    f"""obj: {reference_item.get_full_name()}\nDocument: \n{reference_item.md_content[-1] if len(reference_item.md_content) > 0 else 'None'}\nRaw code:```\n{reference_item.content.get('code_content', '')}\n```"""
                     + "=" * 10
                 )
                 prompt.append(instance_prompt)

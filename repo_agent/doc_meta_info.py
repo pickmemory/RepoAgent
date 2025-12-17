@@ -16,6 +16,7 @@ from prettytable import PrettyTable
 from tqdm import tqdm
 
 from repo_agent.file_handler import FileHandler
+from repo_agent.file_handler_factory import create_file_handler
 from repo_agent.log import logger
 from repo_agent.multi_task_dispatch import Task, TaskManager
 from repo_agent.settings import SettingsManager
@@ -213,7 +214,7 @@ class DocItem:
             self_name = now.obj_name
             if strict:
                 for name, item in self.father.children.items():
-                    if item == now:
+                    if id(item) == id(now):
                         self_name = name
                         break
                 if self_name != now.obj_name:
@@ -352,7 +353,7 @@ class MetaInfo:
         print(
             f"{Fore.LIGHTRED_EX}Initializing MetaInfo: {Style.RESET_ALL}from {project_abs_path}"
         )
-        file_handler = FileHandler(project_abs_path, None)
+        file_handler = create_file_handler(project_abs_path, None)
         repo_structure = file_handler.generate_overall_structure(
             file_path_reflections, jump_files
         )
@@ -535,12 +536,17 @@ class MetaInfo:
                 ):
                     in_file_only = True  # 作为加速，如果有白名单，白名单obj同文件夹下的也parse，但是只找同文件内的引用
 
+                # 处理可能缺失的字段（特别是 .NET 文件）
+                content = now_obj.content
+                line_number = content.get("code_start_line", 0)
+                column_number = content.get("name_column", 0)
+
                 reference_list = find_all_referencer(
                     repo_path=self.repo_path,
                     variable_name=now_obj.obj_name,
                     file_path=rel_file_path,
-                    line_number=now_obj.content["code_start_line"],
-                    column_number=now_obj.content["name_column"],
+                    line_number=line_number,
+                    column_number=column_number,
                     in_file_only=in_file_only,
                 )
                 for referencer_pos in reference_list:  # 对于每个引用
@@ -646,20 +652,23 @@ class MetaInfo:
                 """
                 best_break_level = 0
                 second_best_break_level = 0
+                # 使用 id 集合来避免递归比较错误
+                deal_items_ids = set(id(item) for item in deal_items)
+
                 for _, child in item.children.items():  # 父亲依赖儿子的关系是一定要走的
-                    if task_available_func(child) and (child not in deal_items):
+                    if task_available_func(child) and (id(child) not in deal_items_ids):
                         best_break_level += 1
                 for referenced, special in zip(
                     item.reference_who, item.special_reference_type
                 ):
                     if task_available_func(referenced) and (
-                        referenced not in deal_items
+                        id(referenced) not in deal_items_ids
                     ):
                         best_break_level += 1
                     if (
                         task_available_func(referenced)
                         and (not special)
-                        and (referenced not in deal_items)
+                        and (id(referenced) not in deal_items_ids)
                     ):
                         second_best_break_level += 1
                 if best_break_level == 0:
@@ -690,7 +699,8 @@ class MetaInfo:
                 )
                 target_item.multithread_task_id = task_id
             deal_items.append(target_item)
-            doc_items.remove(target_item)
+            # 使用 ID 来删除以避免比较问题
+            doc_items = [item for item in doc_items if id(item) != id(target_item)]
             bar.update(1)
 
         return task_manager
@@ -738,7 +748,7 @@ class MetaInfo:
             # 注意：这里需要考虑 now_item.obj_name可能会有重名，并不一定等于
             real_name = None
             for child_real_name, temp_item in now_item.father.children.items():
-                if temp_item == now_item:
+                if id(temp_item) == id(now_item):
                     real_name = child_real_name
                     break
             assert real_name != None
@@ -931,10 +941,17 @@ class MetaInfo:
 
             obj_item_list: List[DocItem] = []
             for value in file_content:
+                # 确保 md_content 是列表
+                md_content = value.get("md_content", [])
+                if isinstance(md_content, str):
+                    md_content = [md_content]
+                elif not isinstance(md_content, list):
+                    md_content = [str(md_content)]
+
                 obj_doc_item = DocItem(
                     obj_name=value["name"],
                     content=value,
-                    md_content=value["md_content"],
+                    md_content=md_content,
                     code_start_line=value["code_start_line"],
                     code_end_line=value["code_end_line"],
                 )

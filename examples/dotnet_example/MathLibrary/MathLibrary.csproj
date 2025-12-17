@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>MathLibrary.Sample</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>RepoAgent Team</Authors>
+    <Description>示例数学计算库，展示RepoAgent的.NET文档生成功能</Description>
+    <PackageTags>math;calculator;utilities</PackageTags>
+  </PropertyGroup>
+
+</Project>

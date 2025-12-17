@@ -1,0 +1,490 @@
+"""
+修复版的 .NET 支持单元测试套件
+"""
+
+import os
+import unittest
+import tempfile
+import shutil
+from pathlib import Path
+from unittest.mock import Mock, patch, MagicMock
+
+# 导入所有需要测试的 .NET 相关组件
+from repo_agent.project.dotnet_project import (
+    DotNetProjectParser,
+    DotNetProject,
+    DotNetSolution,
+    ProjectType,
+    TargetFramework,
+    ProjectReference
+)
+from repo_agent.documenters.dotnet_documenter import (
+    DotNetDocumentGenerator,
+    DotNetDocConfig
+)
+from repo_agent.prompts.dotnet_prompts import (
+    DotNetPromptGenerator,
+    DotNetTerminology,
+    DotNetDocumentationTemplates,
+    DotNetCodeType
+)
+from repo_agent.language import Language
+
+
+class TestDotNetProjectParserFixed(unittest.TestCase):
+    """测试 .NET 项目解析器（修复版）"""
+
+    def setUp(self):
+        """设置测试环境"""
+        self.test_dir = Path(tempfile.mkdtemp())
+        self.parser = DotNetProjectParser(str(self.test_dir))
+
+    def tearDown(self):
+        """清理测试环境"""
+        shutil.rmtree(self.test_dir, ignore_errors=True)
+
+    def test_create_sample_csproj(self):
+        """创建示例 .csproj 文件"""
+        csproj_content = """<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>TestApp</AssemblyName>
+    <RootNamespace>TestApp</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TestLibrary\TestLibrary.csproj" />
+  </ItemGroup>
+</Project>"""
+
+        csproj_path = self.test_dir / "TestApp" / "TestApp.csproj"
+        csproj_path.parent.mkdir(parents=True)
+        csproj_path.write_text(csproj_content, encoding='utf-8')
+
+        return str(csproj_path.relative_to(self.test_dir))
+
+    def test_parse_simple_project(self):
+        """测试解析简单项目"""
+        project_path = self.test_create_sample_csproj()
+
+        project = self.parser.parse_project(project_path)
+
+        self.assertIsNotNone(project)
+        self.assertEqual(project.name, "TestApp")
+        self.assertEqual(project.project_type, ProjectType.CONSOLE_APP)
+        self.assertEqual(project.language, "C#")
+        self.assertIn(TargetFramework.NET8, project.target_frameworks)
+        self.assertEqual(project.assembly_name, "TestApp")
+        self.assertEqual(project.root_namespace, "TestApp")
+
+    def test_parse_package_references(self):
+        """测试解析包引用"""
+        project_path = self.test_create_sample_csproj()
+
+        project = self.parser.parse_project(project_path)
+
+        self.assertIsNotNone(project)
+        self.assertEqual(len(project.package_references), 1)
+        self.assertEqual(project.package_references[0].name, "Microsoft.Extensions.Logging")
+        self.assertEqual(project.package_references[0].version, "8.0.0")
+
+    def test_parse_project_references(self):
+        """测试解析项目引用"""
+        project_path = self.test_create_sample_csproj()
+
+        project = self.parser.parse_project(project_path)
+
+        self.assertIsNotNone(project)
+        self.assertEqual(len(project.project_references), 1)
+        self.assertEqual(project.project_references[0].name, "TestLibrary")
+
+    def test_detect_project_types(self):
+        """测试项目类型检测（修复XML格式）"""
+        test_cases = [
+            ('console', '''<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+</Project>'''),
+            ('web', '''<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+</Project>'''),
+            ('classlib', '''<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+</Project>'''),
+            ('test', '''<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+  </ItemGroup>
+</Project>''')
+        ]
+
+        for expected_type, content in test_cases:
+            with self.subTest(type=expected_type):
+                csproj_path = self.test_dir / f"{expected_type}_test.csproj"
+                csproj_path.write_text(content, encoding='utf-8')
+
+                project = self.parser.parse_project(str(csproj_path.relative_to(self.test_dir)))
+
+                self.assertIsNotNone(project, f"Failed to parse {expected_type} project")
+
+
+class TestDotNetDocumentGeneratorFixed(unittest.TestCase):
+    """测试 .NET 文档生成器（修复版）"""
+
+    def setUp(self):
+        """设置测试环境"""
+        self.config = DotNetDocConfig()
+        self.generator = DotNetDocumentGenerator(self.config)
+
+    def test_generate_class_documentation_template(self):
+        """测试生成类文档模板"""
+        template = self.generator.templates.get_class_template()
+
+        self.assertIn("{class_name}", template)
+        self.assertIn("{class_summary}", template)
+        self.assertIn("{inheritance_info}", template)
+        self.assertIn("{properties_list}", template)
+        self.assertIn("{methods_list}", template)
+
+    def test_generate_method_documentation_template(self):
+        """测试生成方法文档模板"""
+        template = self.generator.templates.get_method_template()
+
+        self.assertIn("{method_name}", template)
+        self.assertIn("{parameters_list}", template)
+        self.assertIn("{return_type}", template)
+        self.assertIn("{exceptions_list}", template)
+
+    def test_format_csharp_signature(self):
+        """测试格式化 C# 签名"""
+        signature_info = {
+            "modifiers": ["public", "static"],
+            "return_type": "string",
+            "name": "TestMethod",
+            "parameters": [
+                {"name": "input", "type": "string"},
+                {"name": "count", "type": "int", "default": "0"}
+            ],
+            "generic_parameters": ["T"]
+        }
+
+        formatted = self.generator.prompt_generator.format_csharp_signature(signature_info)
+
+        self.assertIn("public static string", formatted)
+        self.assertIn("TestMethod<T>", formatted)
+        self.assertIn("string input", formatted)
+        self.assertIn("int count = 0", formatted)
+
+
+class TestDotNetPromptGeneratorFixed(unittest.TestCase):
+    """测试 .NET 提示生成器（修复版）"""
+
+    def setUp(self):
+        """设置测试环境"""
+        self.generator = DotNetPromptGenerator()
+
+    def test_generate_class_prompt(self):
+        """测试生成类文档提示"""
+        code_content = """public class TestClass
+{
+    public string Name { get; set; }
+
+    public void PrintName()
+    {
+        Console.WriteLine(Name);
+    }
+}"""
+
+        prompt = self.generator.generate_documentation_prompt(
+            code_name="TestClass",
+            code_type="class",
+            code_content=code_content
+        )
+
+        self.assertIn("TestClass", prompt)
+        self.assertIn("class", prompt)
+        self.assertIn("C#", prompt)
+
+    def test_generate_interface_prompt(self):
+        """测试生成接口文档提示"""
+        code_content = """public interface ITestInterface
+{
+    void DoWork();
+    string GetData();
+}"""
+
+        prompt = self.generator.generate_documentation_prompt(
+            code_name="ITestInterface",
+            code_type="interface",
+            code_content=code_content
+        )
+
+        self.assertIn("ITestInterface", prompt)
+        self.assertIn("interface", prompt)
+        self.assertIn("members", prompt)
+
+    def test_get_type_specific_instructions(self):
+        """测试获取类型特定指令"""
+        types = ["class", "interface", "method", "property", "struct", "enum"]
+
+        for code_type in types:
+            with self.subTest(type=code_type):
+                instructions = self.generator._get_type_specific_instructions(code_type)
+                self.assertIsInstance(instructions, str)
+                self.assertTrue(len(instructions) > 0)
+
+
+class TestDotNetTerminologyFixed(unittest.TestCase):
+    """测试 .NET 术语映射（修复编码问题）"""
+
+    def setUp(self):
+        """设置测试环境"""
+        self.terminology = DotNetTerminology()
+
+    def test_terminology_structure(self):
+        """测试术语映射结构"""
+        # 检查通用术语映射存在
+        self.assertIsInstance(self.terminology.COMMON_TERMS, dict)
+        self.assertTrue(len(self.terminology.COMMON_TERMS) > 0)
+
+        # 检查访问修饰符存在
+        self.assertIsInstance(self.terminology.ACCESS_MODIFIERS, dict)
+        self.assertIn("public", self.terminology.ACCESS_MODIFIERS)
+
+        # 检查类型修饰符存在
+        self.assertIsInstance(self.terminology.TYPE_MODIFIERS, dict)
+        self.assertIn("abstract", self.terminology.TYPE_MODIFIERS)
+
+    def test_translate_function(self):
+        """测试翻译函数本身"""
+        # 使用英文术语测试
+        test_text = "这是一个函数function"
+        translated = self.terminology.translate_to_dotnet_terminology(test_text)
+
+        # 应该包含 "method"
+        self.assertIn("method", translated)
+
+    def test_access_modifiers(self):
+        """测试访问修饰符"""
+        modifiers = ["public", "private", "protected", "internal"]
+
+        for modifier in modifiers:
+            with self.subTest(modifier=modifier):
+                self.assertIn(modifier, self.terminology.ACCESS_MODIFIERS)
+
+    def test_type_modifiers(self):
+        """测试类型修饰符"""
+        modifiers = ["abstract", "sealed", "static", "virtual", "override"]
+
+        for modifier in modifiers:
+            with self.subTest(modifier=modifier):
+                self.assertIn(modifier, self.terminology.TYPE_MODIFIERS)
+
+
+class TestDotNetCodeTypeFixed(unittest.TestCase):
+    """测试 .NET 代码类型枚举"""
+
+    def test_code_type_values(self):
+        """测试代码类型值"""
+        expected_types = [
+            "class", "interface", "struct", "enum", "delegate",
+            "method", "property", "field", "event", "constructor",
+            "namespace", "indexer", "operator"
+        ]
+
+        actual_values = [t.value for t in DotNetCodeType]
+
+        for expected in expected_types:
+            with self.subTest(type=expected):
+                self.assertIn(expected, actual_values)
+
+
+class TestProjectTypeFixed(unittest.TestCase):
+    """测试项目类型枚举"""
+
+    def test_project_type_values(self):
+        """测试项目类型值"""
+        expected_types = [
+            "console", "web", "webapi", "classlib", "mvc",
+            "razor", "blazor", "maui", "xamarin", "test",
+            "worker", "grpc", "unspecified"
+        ]
+
+        actual_values = [t.value for t in ProjectType]
+
+        for expected in expected_types:
+            with self.subTest(type=expected):
+                self.assertIn(expected, actual_values)
+
+
+class TestIntegrationScenariosFixed(unittest.TestCase):
+    """集成测试场景（修复版）"""
+
+    def setUp(self):
+        """设置测试环境"""
+        self.test_dir = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        """清理测试环境"""
+        shutil.rmtree(self.test_dir, ignore_errors=True)
+
+    def test_dotnet_project_end_to_end(self):
+        """测试 .NET 项目端到端流程"""
+        # 创建示例项目结构
+        project_dir = self.test_dir / "SampleProject"
+        project_dir.mkdir()
+
+        # 创建 .csproj
+        csproj_content = """<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+  </ItemGroup>
+</Project>"""
+
+        (project_dir / "SampleProject.csproj").write_text(csproj_content, encoding='utf-8')
+
+        # 创建 Controllers 目录
+        controllers_dir = project_dir / "Controllers"
+        controllers_dir.mkdir()
+
+        # 创建 C# 源文件
+        cs_content = """using Microsoft.AspNetCore.Mvc;
+
+namespace SampleProject.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class WeatherForecastController : ControllerBase
+{
+    private static readonly string[] Summaries = new[]
+    {
+        "Freezing", "Bracing", "Chilly", "Cool", "Mild"
+    };
+
+    [HttpGet]
+    public IEnumerable<string> Get()
+    {
+        return Summaries;
+    }
+}"""
+
+        (controllers_dir / "WeatherForecastController.cs").write_text(cs_content, encoding='utf-8')
+
+        # 测试项目解析
+        parser = DotNetProjectParser(str(self.test_dir))
+        project = parser.parse_project("SampleProject/SampleProject.csproj")
+
+        self.assertIsNotNone(project)
+        self.assertEqual(project.project_type, ProjectType.WEB_API)
+        self.assertTrue(project.is_web_project)
+
+        # 测试文档生成
+        doc_generator = DotNetDocumentGenerator()
+        prompt_generator = DotNetPromptGenerator()
+
+        # 生成控制器文档提示
+        prompt = prompt_generator.generate_documentation_prompt(
+            code_name="WeatherForecastController",
+            code_type="class",
+            code_content=cs_content
+        )
+
+        self.assertIn("WeatherForecastController", prompt)
+        self.assertIn("ApiController", prompt)
+        self.assertIn("HttpGet", prompt)
+
+    def test_find_projects_and_solutions(self):
+        """测试查找项目和解决方案文件"""
+        # 创建多个项目文件
+        projects = [
+            "src/App/App.csproj",
+            "src/Library/Library.csproj",
+            "tests/Tests.fsproj",
+            "legacy/VBApp.vbproj"
+        ]
+
+        for proj in projects:
+            proj_path = self.test_dir / proj
+            proj_path.parent.mkdir(parents=True)
+            proj_path.write_text("<Project Sdk='Microsoft.NET.Sdk' />", encoding='utf-8')
+
+        # 创建解决方案文件
+        sln_path = self.test_dir / "Solution.sln"
+        sln_path.write_text("Microsoft Visual Studio Solution File, Format Version 12.00", encoding='utf-8')
+
+        parser = DotNetProjectParser(str(self.test_dir))
+
+        # 测试查找项目文件
+        found_projects = parser.find_project_files()
+        self.assertEqual(len(found_projects), 4)
+
+        # 测试查找解决方案文件
+        found_solutions = parser.find_solution_files()
+        self.assertEqual(len(found_solutions), 1)
+
+
+def create_fixed_test_suite():
+    """创建修复版测试套件"""
+    suite = unittest.TestSuite()
+
+    # 添加所有测试类
+    test_classes = [
+        TestDotNetProjectParserFixed,
+        TestDotNetDocumentGeneratorFixed,
+        TestDotNetPromptGeneratorFixed,
+        TestDotNetTerminologyFixed,
+        TestDotNetCodeTypeFixed,
+        TestProjectTypeFixed,
+        TestIntegrationScenariosFixed
+    ]
+
+    for test_class in test_classes:
+        tests = unittest.TestLoader().loadTestsFromTestCase(test_class)
+        suite.addTests(tests)
+
+    return suite
+
+
+def run_fixed_tests():
+    """运行修复版测试"""
+    suite = create_fixed_test_suite()
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    return result.wasSuccessful()
+
+
+if __name__ == "__main__":
+    # 运行测试
+    print("=" * 70)
+    print("运行修复版 .NET 支持单元测试套件")
+    print("=" * 70)
+
+    success = run_fixed_tests()
+
+    print("\n" + "=" * 70)
+    if success:
+        print("所有测试通过！")
+    else:
+        print("部分测试失败，请检查输出。")
+    print("=" * 70)
+
+    exit(0 if success else 1)

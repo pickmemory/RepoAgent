@@ -98,7 +98,9 @@ class RoslynWrapper:
                 [str(self.analyzer_path), "--help"],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
+                encoding='utf-8',
+                errors='replace'  # 替换无法解码的字符
             )
 
             # 分析器应该返回非零退出码（因为没有提供 --file 参数）
@@ -162,10 +164,46 @@ class RoslynWrapper:
             result = subprocess.run(
                 cmd,
                 capture_output=True,
-                text=True,
-                timeout=timeout,
-                encoding='utf-8'
+                timeout=timeout
             )
+
+            # 手动解码输出
+            import chardet
+
+            def decode_output(data: bytes) -> str:
+                """智能解码字节流"""
+                if not data:
+                    return ""
+
+                # 先尝试 UTF-8（.NET 默认）
+                try:
+                    return data.decode('utf-8')
+                except UnicodeDecodeError:
+                    pass
+
+                # 使用 chardet 检测编码
+                detected = chardet.detect(data)
+                if detected and detected['confidence'] > 0.7:
+                    try:
+                        return data.decode(detected['encoding'])
+                    except:
+                        pass
+
+                # 最后使用替换模式
+                return data.decode('utf-8', errors='replace')
+
+            # 解码输出
+            stdout = decode_output(result.stdout)
+            stderr = decode_output(result.stderr)
+
+            # 创建一个模拟的结果对象
+            class ProcessResult:
+                def __init__(self, returncode, stdout, stderr):
+                    self.returncode = returncode
+                    self.stdout = stdout
+                    self.stderr = stderr
+
+            result = ProcessResult(result.returncode, stdout, stderr)
 
             # 检查退出码
             if result.returncode != 0:
@@ -244,13 +282,49 @@ class RoslynWrapper:
 
         try:
             # 执行分析器
-            result = subprocess.run(
+            raw_result = subprocess.run(
                 cmd,
                 capture_output=True,
-                text=True,
-                timeout=timeout,
-                encoding='utf-8'
+                timeout=timeout
             )
+
+            # 手动解码输出
+            import chardet
+
+            def decode_output(data: bytes) -> str:
+                """智能解码字节流"""
+                if not data:
+                    return ""
+
+                # 先尝试 UTF-8（.NET 默认）
+                try:
+                    return data.decode('utf-8')
+                except UnicodeDecodeError:
+                    pass
+
+                # 使用 chardet 检测编码
+                detected = chardet.detect(data)
+                if detected and detected['confidence'] > 0.7:
+                    try:
+                        return data.decode(detected['encoding'])
+                    except:
+                        pass
+
+                # 最后使用替换模式
+                return data.decode('utf-8', errors='replace')
+
+            # 解码输出
+            stdout = decode_output(raw_result.stdout)
+            stderr = decode_output(raw_result.stderr)
+
+            # 创建一个模拟的结果对象
+            class ProcessResult:
+                def __init__(self, returncode, stdout, stderr):
+                    self.returncode = returncode
+                    self.stdout = stdout
+                    self.stderr = stderr
+
+            result = ProcessResult(raw_result.returncode, stdout, stderr)
 
             # 检查退出码
             if result.returncode != 0:
@@ -298,7 +372,9 @@ class RoslynWrapper:
                 [str(self.analyzer_path), "--help"],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
+                encoding='utf-8',
+                errors='replace'  # 替换无法解码的字符
             )
 
             # 从输出中提取版本信息（如果有的话）

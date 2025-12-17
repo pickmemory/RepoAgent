@@ -78,7 +78,13 @@ class FileHandler:
             lines = code_file.readlines()
             code_content = "".join(lines[start_line - 1 : end_line])
             # 获取对象名称在第一行代码中的位置
-            name_column = lines[start_line - 1].find(code_name)
+            first_line = lines[start_line - 1]
+            # 移除 BOM（如果有）
+            if '\ufeff' in first_line:
+                first_line = first_line.replace('\ufeff', '')
+            name_column = first_line.find(code_name)
+            if name_column < 0:
+                name_column = 0
             # 判断代码中是否有return字样
             if "return" in code_content:
                 have_return = True
@@ -293,9 +299,17 @@ class FileHandler:
             #     print(f"{Fore.LIGHTYELLOW_EX}[Unstaged ChangeFile] load fake-file-content: {Style.RESET_ALL}{normal_file_names}")
 
             try:
-                repo_structure[normal_file_names] = self.generate_file_structure(
-                    not_ignored_files
-                )
+                # Check if this is a non-Python file that needs special handling
+                if any(not_ignored_files.endswith(ext) for ext in ['.cs', '.csx', '.fs', '.fsi', '.fsx', '.vb', '.vbx']):
+                    # Use the extended file handler for .NET files
+                    from repo_agent.file_handler_factory import create_file_handler
+                    extended_handler = create_file_handler(self.repo_path, not_ignored_files)
+                    repo_structure[normal_file_names] = extended_handler.generate_file_structure(not_ignored_files)
+                else:
+                    # Use the traditional handler for Python files
+                    repo_structure[normal_file_names] = self.generate_file_structure(
+                        not_ignored_files
+                    )
             except Exception as e:
                 logger.error(
                     f"Alert: An error occurred while generating file structure for {not_ignored_files}: {e}"
